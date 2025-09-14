@@ -1,0 +1,20 @@
+# Streamlit server settings
+[server]
+headless = true
+address = "0.0.0.0"
+port = 5000
+
+# Streamlit theme settings
+[theme]
+primaryColor = "#1f77b4"
+backgroundColor = "#ffffff"
+secondaryBackgroundColor = "#f0f2f6"
+textColor = "#262730"
+
+# Database connection settings
+[database]
+host = "localhost"
+port = 5432
+user = "postgres"
+password = "123@456"
+dbname = "travel_assistant"
