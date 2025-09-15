@@ -11,6 +11,12 @@ class GroqClient:
         print("GroqClient initialized, code is running...")
 
         self.api_key = os.getenv("GROQ_API_KEY")
+        print(f"[DEBUG] GROQ_API_KEY: {self.api_key[:10] if self.api_key else 'None'}...")
+        
+        if not self.api_key:
+            print("[ERROR] GROQ_API_KEY environment variable not set!")
+            raise ValueError("GROQ_API_KEY environment variable is required")
+            
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
         self.model = "llama-3.1-8b-instant"  # Default Groq model
 

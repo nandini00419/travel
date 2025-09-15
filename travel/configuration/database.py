@@ -6,10 +6,18 @@ import toml
 
 from dotenv import load_dotenv
 
-load_dotenv()
+# Try to load from multiple sources
+load_dotenv()  # Load from .env file
+load_dotenv('config.env')  # Load from config.env file
 
 class DatabaseManager:
     def __init__(self):
+        # Debug: Print environment variables
+        print(f"[DEBUG] DB_HOST: {os.getenv('DB_HOST')}")
+        print(f"[DEBUG] DB_NAME: {os.getenv('DB_NAME')}")
+        print(f"[DEBUG] DB_USER: {os.getenv('DB_USER')}")
+        print(f"[DEBUG] DB_PORT: {os.getenv('DB_PORT')}")
+        
         self.connection_params = {
             'host': os.getenv('DB_HOST'),
             'database': os.getenv('DB_NAME'),
@@ -18,6 +26,21 @@ class DatabaseManager:
             'port': int(os.getenv('DB_PORT', 5432)),
             'sslmode': os.getenv('DB_SSLMODE', 'require')
         }
+        
+        # Validate required parameters
+        if not self.connection_params['host']:
+            logging.error("DB_HOST environment variable not set!")
+            raise ValueError("DB_HOST environment variable is required")
+        if not self.connection_params['database']:
+            logging.error("DB_NAME environment variable not set!")
+            raise ValueError("DB_NAME environment variable is required")
+        if not self.connection_params['user']:
+            logging.error("DB_USER environment variable not set!")
+            raise ValueError("DB_USER environment variable is required")
+        if not self.connection_params['password']:
+            logging.error("DB_PASSWORD environment variable not set!")
+            raise ValueError("DB_PASSWORD environment variable is required")
+            
         logging.info(f"Using database: {self.connection_params['database']} on host {self.connection_params['host']}")
         self.init_database()
 
