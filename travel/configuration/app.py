@@ -90,6 +90,20 @@ def main():
                 db_manager.clear_user_conversations(st.session_state.user_id)
                 logger.log_user_action(st.session_state.user_id, "clear_conversation", {})
                 st.rerun()
+            
+            # Admin dashboard link
+            st.markdown("---")
+            st.subheader("📊 Admin Tools")
+            if st.button("📊 Admin Dashboard", key="admin_btn"):
+                st.info("Admin Dashboard - View user analytics and system statistics")
+                # For now, show basic stats in the sidebar
+                try:
+                    system_stats = logger.get_system_stats()
+                    st.write(f"**Total Users:** {system_stats.get('total_users', 0)}")
+                    st.write(f"**Messages Today:** {system_stats.get('messages_today', 0)}")
+                    st.write(f"**Errors Today:** {system_stats.get('errors_today', 0)}")
+                except Exception as e:
+                    st.error(f"Error loading stats: {e}")
 
     # Main chat interface
     if "user_id" in st.session_state:
