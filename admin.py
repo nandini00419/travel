@@ -10,11 +10,15 @@ import sys
 sys.path.append('travel/configuration')
 
 try:
-    from database import DatabaseManager
-    from logger import Logger
-except ImportError as e:
-    st.error(f"Import error: {e}")
-    st.stop()
+    from travel.configuration.database import DatabaseManager
+    from travel.configuration.logger import Logger
+except ImportError:
+    try:
+        from database import DatabaseManager
+        from logger import Logger
+    except ImportError as e:
+        st.error(f"Import error: {e}")
+        st.stop()
 
 def main():
     st.set_page_config(
