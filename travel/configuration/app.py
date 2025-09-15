@@ -251,7 +251,7 @@ def main():
     # Footer with stats
     if "user_id" in st.session_state:
         st.markdown("---")
-        col1, col2, col3 = st.columns(3)
+        col1, col2, col3, col4 = st.columns(4)
 
         with col1:
             msg_count = len([m for m in st.session_state.messages if m["role"] == "user"])
@@ -265,6 +265,11 @@ def main():
             # Get conversation count from database
             conv_count = db_manager.get_conversation_count(st.session_state.user_id)
             st.metric("Total Conversations", conv_count)
+        
+        with col4:
+            # Admin dashboard link
+            if st.button("📊 Admin Dashboard"):
+                st.switch_page("pages/admin_dashboard.py")
 
 
 if __name__ == "__main__":
