@@ -2,6 +2,7 @@ import requests
 import json
 import os
 import logging
+import streamlit as st
 from typing import Dict, List, Optional
 
 
@@ -10,12 +11,22 @@ class GroqClient:
         """Initialize Groq API client"""
         print("GroqClient initialized, code is running...")
 
-        self.api_key = os.getenv("GROQ_API_KEY")
+        # Try to get API key from Streamlit secrets first, then environment variables
+        try:
+            # Streamlit Cloud secrets
+            secrets = st.secrets
+            self.api_key = secrets.get('GROQ_API_KEY', os.getenv("GROQ_API_KEY"))
+            print(f"[DEBUG] Using Streamlit secrets for Groq API key")
+        except Exception as e:
+            print(f"[DEBUG] Streamlit secrets not available, using environment variables: {e}")
+            # Fallback to environment variables
+            self.api_key = os.getenv("GROQ_API_KEY")
+        
         print(f"[DEBUG] GROQ_API_KEY: {self.api_key[:10] if self.api_key else 'None'}...")
         
         if not self.api_key:
-            print("[ERROR] GROQ_API_KEY environment variable not set!")
-            raise ValueError("GROQ_API_KEY environment variable is required")
+            print("[ERROR] GROQ_API_KEY not set in secrets or environment variables!")
+            raise ValueError("GROQ_API_KEY is required")
             
         self.base_url = "https://api.groq.com/openai/v1/chat/completions"
         self.model = "llama-3.1-8b-instant"  # Default Groq model

@@ -3,6 +3,7 @@ import json
 import os
 import logging
 import toml
+import streamlit as st
 
 from dotenv import load_dotenv
 
@@ -12,34 +13,50 @@ load_dotenv('config.env')  # Load from config.env file
 
 class DatabaseManager:
     def __init__(self):
-        # Debug: Print environment variables
-        print(f"[DEBUG] DB_HOST: {os.getenv('DB_HOST')}")
-        print(f"[DEBUG] DB_NAME: {os.getenv('DB_NAME')}")
-        print(f"[DEBUG] DB_USER: {os.getenv('DB_USER')}")
-        print(f"[DEBUG] DB_PORT: {os.getenv('DB_PORT')}")
+        # Try to get configuration from Streamlit secrets first, then environment variables
+        try:
+            # Streamlit Cloud secrets
+            secrets = st.secrets
+            self.connection_params = {
+                'host': secrets.get('DB_HOST', os.getenv('DB_HOST')),
+                'database': secrets.get('DB_NAME', os.getenv('DB_NAME')),
+                'user': secrets.get('DB_USER', os.getenv('DB_USER')),
+                'password': secrets.get('DB_PASSWORD', os.getenv('DB_PASSWORD')),
+                'port': int(secrets.get('DB_PORT', os.getenv('DB_PORT', 5432))),
+                'sslmode': secrets.get('DB_SSLMODE', os.getenv('DB_SSLMODE', 'require'))
+            }
+            print(f"[DEBUG] Using Streamlit secrets for database configuration")
+        except Exception as e:
+            print(f"[DEBUG] Streamlit secrets not available, using environment variables: {e}")
+            # Fallback to environment variables
+            self.connection_params = {
+                'host': os.getenv('DB_HOST'),
+                'database': os.getenv('DB_NAME'),
+                'user': os.getenv('DB_USER'),
+                'password': os.getenv('DB_PASSWORD'),
+                'port': int(os.getenv('DB_PORT', 5432)),
+                'sslmode': os.getenv('DB_SSLMODE', 'require')
+            }
         
-        self.connection_params = {
-            'host': os.getenv('DB_HOST'),
-            'database': os.getenv('DB_NAME'),
-            'user': os.getenv('DB_USER'),
-            'password': os.getenv('DB_PASSWORD'),
-            'port': int(os.getenv('DB_PORT', 5432)),
-            'sslmode': os.getenv('DB_SSLMODE', 'require')
-        }
+        # Debug: Print configuration
+        print(f"[DEBUG] DB_HOST: {self.connection_params['host']}")
+        print(f"[DEBUG] DB_NAME: {self.connection_params['database']}")
+        print(f"[DEBUG] DB_USER: {self.connection_params['user']}")
+        print(f"[DEBUG] DB_PORT: {self.connection_params['port']}")
         
         # Validate required parameters
         if not self.connection_params['host']:
-            logging.error("DB_HOST environment variable not set!")
-            raise ValueError("DB_HOST environment variable is required")
+            logging.error("DB_HOST not set in secrets or environment variables!")
+            raise ValueError("DB_HOST is required")
         if not self.connection_params['database']:
-            logging.error("DB_NAME environment variable not set!")
-            raise ValueError("DB_NAME environment variable is required")
+            logging.error("DB_NAME not set in secrets or environment variables!")
+            raise ValueError("DB_NAME is required")
         if not self.connection_params['user']:
-            logging.error("DB_USER environment variable not set!")
-            raise ValueError("DB_USER environment variable is required")
+            logging.error("DB_USER not set in secrets or environment variables!")
+            raise ValueError("DB_USER is required")
         if not self.connection_params['password']:
-            logging.error("DB_PASSWORD environment variable not set!")
-            raise ValueError("DB_PASSWORD environment variable is required")
+            logging.error("DB_PASSWORD not set in secrets or environment variables!")
+            raise ValueError("DB_PASSWORD is required")
             
         logging.info(f"Using database: {self.connection_params['database']} on host {self.connection_params['host']}")
         self.init_database()
