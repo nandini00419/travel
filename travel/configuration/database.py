@@ -11,12 +11,12 @@ load_dotenv()
 class DatabaseManager:
     def __init__(self):
         self.connection_params = {
-            'host': os.getenv('PGHOST'),
-            'database': os.getenv('PGDATABASE'),
-            'user': os.getenv('PGUSER'),
-            'password': os.getenv('PGPASSWORD'),
-            'port': int(os.getenv('PGPORT', 5432)),
-            'sslmode': os.getenv('PGSSLMODE', 'require')
+            'host': os.getenv('DB_HOST'),
+            'database': os.getenv('DB_NAME'),
+            'user': os.getenv('DB_USER'),
+            'password': os.getenv('DB_PASSWORD'),
+            'port': int(os.getenv('DB_PORT', 5432)),
+            'sslmode': os.getenv('DB_SSLMODE', 'require')
         }
         logging.info(f"Using database: {self.connection_params['database']} on host {self.connection_params['host']}")
         self.init_database()
